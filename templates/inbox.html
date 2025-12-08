@@ -1,0 +1,413 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>WhatsApp AI Assistant - Inbox</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: #f0f2f5;
+            height: 100vh;
+            overflow: hidden;
+        }
+
+        .container {
+            display: flex;
+            height: 100vh;
+            max-width: 1400px;
+            margin: 0 auto;
+            background: white;
+        }
+
+        /* Conversation List */
+        .conversation-list {
+            width: 350px;
+            border-right: 1px solid #e0e0e0;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .conversation-list-header {
+            padding: 20px;
+            background: #25D366;
+            color: white;
+            font-size: 18px;
+            font-weight: 600;
+        }
+
+        .conversation-item {
+            padding: 15px 20px;
+            border-bottom: 1px solid #f0f0f0;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+
+        .conversation-item:hover {
+            background: #f5f5f5;
+        }
+
+        .conversation-item.active {
+            background: #e9edef;
+        }
+
+        .conversation-contact {
+            font-weight: 600;
+            margin-bottom: 5px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .conversation-mode {
+            font-size: 11px;
+            padding: 3px 8px;
+            border-radius: 10px;
+            font-weight: 500;
+        }
+
+        .mode-ai {
+            background: #dcf8c6;
+            color: #075e54;
+        }
+
+        .mode-human {
+            background: #ffd6a5;
+            color: #8b4513;
+        }
+
+        .conversation-preview {
+            font-size: 13px;
+            color: #667781;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        /* Chat Area */
+        .chat-area {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .chat-header {
+            padding: 15px 20px;
+            background: #f0f2f5;
+            border-bottom: 1px solid #e0e0e0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .chat-contact-name {
+            font-weight: 600;
+            font-size: 16px;
+        }
+
+        .toggle-mode-btn {
+            padding: 8px 16px;
+            border: none;
+            border-radius: 20px;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 13px;
+            transition: all 0.3s;
+        }
+
+        .toggle-mode-btn.ai-mode {
+            background: #25D366;
+            color: white;
+        }
+
+        .toggle-mode-btn.ai-mode:hover {
+            background: #128C7E;
+        }
+
+        .toggle-mode-btn.human-mode {
+            background: #ff9500;
+            color: white;
+        }
+
+        .toggle-mode-btn.human-mode:hover {
+            background: #cc7700;
+        }
+
+        .messages-container {
+            flex: 1;
+            overflow-y: auto;
+            padding: 20px;
+            background: #e5ddd5;
+            background-image: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23d9d9d9' fill-opacity='0.1'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+        }
+
+        .message {
+            margin-bottom: 12px;
+            display: flex;
+        }
+
+        .message.user {
+            justify-content: flex-start;
+        }
+
+        .message.ai, .message.human {
+            justify-content: flex-end;
+        }
+
+        .message-bubble {
+            max-width: 65%;
+            padding: 8px 12px;
+            border-radius: 8px;
+            word-wrap: break-word;
+        }
+
+        .message.user .message-bubble {
+            background: white;
+            border-radius: 0 8px 8px 8px;
+        }
+
+        .message.ai .message-bubble {
+            background: #dcf8c6;
+            border-radius: 8px 0 8px 8px;
+        }
+
+        .message.human .message-bubble {
+            background: #ffd6a5;
+            border-radius: 8px 0 8px 8px;
+        }
+
+        .message-text {
+            font-size: 14px;
+            line-height: 1.4;
+        }
+
+        .message-time {
+            font-size: 11px;
+            color: #667781;
+            margin-top: 4px;
+            text-align: right;
+        }
+
+        .input-area {
+            padding: 15px 20px;
+            background: #f0f2f5;
+            border-top: 1px solid #e0e0e0;
+            display: flex;
+            gap: 10px;
+        }
+
+        .input-area input {
+            flex: 1;
+            padding: 10px 15px;
+            border: 1px solid #d0d0d0;
+            border-radius: 20px;
+            font-size: 14px;
+            outline: none;
+        }
+
+        .input-area button {
+            padding: 10px 20px;
+            background: #25D366;
+            color: white;
+            border: none;
+            border-radius: 20px;
+            cursor: pointer;
+            font-weight: 600;
+        }
+
+        .input-area button:hover {
+            background: #128C7E;
+        }
+
+        .input-area.disabled {
+            opacity: 0.6;
+            pointer-events: none;
+        }
+
+        .empty-state {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            height: 100%;
+            color: #667781;
+            font-size: 16px;
+        }
+
+        /* Mobile Responsive */
+        @media (max-width: 768px) {
+            .conversation-list {
+                width: 100%;
+                display: none;
+            }
+
+            .conversation-list.show-mobile {
+                display: flex;
+            }
+
+            .chat-area {
+                display: none;
+            }
+
+            .chat-area.show-mobile {
+                display: flex;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Conversation List -->
+        <div class="conversation-list" id="conversationList">
+            <div class="conversation-list-header">
+                Inbox
+            </div>
+            <div id="conversations">
+                <!-- Conversations will be loaded here -->
+            </div>
+        </div>
+
+        <!-- Chat Area -->
+        <div class="chat-area" id="chatArea">
+            <div class="empty-state">
+                Select a conversation to start
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // This is a basic prototype
+        // In production, use React/Vue and WebSocket for real-time updates
+
+        const API_BASE = '';
+        let currentConversationId = null;
+        let currentMode = 'AI';
+        const agentId = '3b5ab91d-ddfb-48cb-a110-acb5144a89fa'; // Demo agent ID
+
+        // Load conversations
+        async function loadConversations() {
+            const response = await fetch(`${API_BASE}/api/agents/${agentId}/conversations`);
+            const data = await response.json();
+
+            const conversationsDiv = document.getElementById('conversations');
+            conversationsDiv.innerHTML = '';
+
+            data.conversations.forEach(conv => {
+                const item = document.createElement('div');
+                item.className = 'conversation-item';
+                item.onclick = () => loadConversation(conv.conversation_id);
+
+                item.innerHTML = `
+                    <div class="conversation-contact">
+                        <span>${conv.contact_name || conv.contact_number}</span>
+                        <span class="conversation-mode mode-${conv.current_mode.toLowerCase()}">
+                            ${conv.current_mode}
+                        </span>
+                    </div>
+                    <div class="conversation-preview">
+                        ${conv.last_message_preview || 'No messages yet'}
+                    </div>
+                `;
+
+                conversationsDiv.appendChild(item);
+            });
+        }
+
+        // Load conversation
+        async function loadConversation(conversationId) {
+            currentConversationId = conversationId;
+
+            // Load conversation details
+            const convResponse = await fetch(`${API_BASE}/api/conversations/${conversationId}`);
+            const conversation = await convResponse.json();
+            currentMode = conversation.current_mode;
+
+            // Load messages
+            const msgResponse = await fetch(`${API_BASE}/api/conversations/${conversationId}/messages`);
+            const msgData = await msgResponse.json();
+
+            // Render chat
+            renderChat(conversation, msgData.messages);
+        }
+
+        // Render chat
+        function renderChat(conversation, messages) {
+            const chatArea = document.getElementById('chatArea');
+
+            chatArea.innerHTML = `
+                <div class="chat-header">
+                    <div class="chat-contact-name">
+                        ${conversation.contact_name || conversation.contact_number}
+                    </div>
+                    <button class="toggle-mode-btn ${currentMode.toLowerCase()}-mode" onclick="toggleMode()">
+                        ${currentMode === 'AI' ? '🤖 AI Mode - Take Over' : '👤 Human Mode - Let AI Handle'}
+                    </button>
+                </div>
+                <div class="messages-container" id="messagesContainer">
+                    ${messages.map(msg => `
+                        <div class="message ${msg.sender_type.toLowerCase()}">
+                            <div class="message-bubble">
+                                <div class="message-text">${msg.message_text}</div>
+                                <div class="message-time">${new Date(msg.timestamp).toLocaleTimeString()}</div>
+                            </div>
+                        </div>
+                    `).join('')}
+                </div>
+                <div class="input-area ${currentMode === 'AI' ? 'disabled' : ''}">
+                    <input type="text" id="messageInput" placeholder="${currentMode === 'AI' ? 'AI is handling this chat' : 'Type a message...'}" ${currentMode === 'AI' ? 'disabled' : ''}>
+                    <button onclick="sendMessage()">Send</button>
+                </div>
+            `;
+
+            // Scroll to bottom
+            const container = document.getElementById('messagesContainer');
+            container.scrollTop = container.scrollHeight;
+        }
+
+        // Toggle mode
+        async function toggleMode() {
+            const newMode = currentMode === 'AI' ? 'HUMAN' : 'AI';
+
+            const response = await fetch(`${API_BASE}/api/conversations/toggle-mode`, {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({
+                    conversation_id: currentConversationId,
+                    mode: newMode,
+                    agent_id: agentId
+                })
+            });
+
+            if (response.ok) {
+                currentMode = newMode;
+                loadConversation(currentConversationId);
+                loadConversations(); // Refresh list
+            }
+        }
+
+        // Send message (human mode)
+        async function sendMessage() {
+            const input = document.getElementById('messageInput');
+            const message = input.value.trim();
+
+            if (!message) return;
+
+            // In production, this would call a send message endpoint
+            // For now, just refresh
+            input.value = '';
+            setTimeout(() => loadConversation(currentConversationId), 500);
+        }
+
+        // Initialize
+        loadConversations();
+
+        // Poll for updates every 5 seconds (replace with WebSocket in production)
+        setInterval(loadConversations, 5000);
+    </script>
+</body>
+</html>

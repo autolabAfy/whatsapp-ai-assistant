@@ -1,0 +1,65 @@
+# WhatsApp AI Assistant - Requirements
+
+# Web Framework
+fastapi==0.104.1
+uvicorn[standard]==0.24.0
+python-multipart==0.0.6
+
+# Database
+psycopg2-binary==2.9.9
+sqlalchemy==2.0.23
+
+# Redis
+redis==4.6.0
+
+# HTTP Client
+httpx==0.25.2
+requests==2.31.0
+
+# AI / LLM
+anthropic==0.7.8
+google-generativeai==0.8.3
+
+# Authentication & Security
+pyjwt==2.8.0
+bcrypt==4.1.2
+python-jose[cryptography]==3.3.0
+
+# Environment Variables
+python-dotenv==1.0.0
+
+# Utilities
+pydantic==2.5.2
+pydantic-settings==2.1.0
+
+# Background Jobs
+celery[redis]==5.3.4
+
+# Logging
+loguru==0.7.2
+
+# Date/Time
+python-dateutil==2.8.2
+pytz==2023.3
+
+# Testing (optional)
+pytest==7.4.3
+pytest-asyncio==0.21.1
+# httpx already listed above
+
+# Development
+black==23.12.1
+flake8==6.1.0
+
+# Authentication & Security (Enhanced)
+python-jose[cryptography]==3.3.0
+passlib[bcrypt]==1.7.4
+
+# Image Processing
+Pillow==10.1.0
+
+# Push Notifications
+firebase-admin==6.2.0
+
+# File Upload
+python-multipart==0.0.6
