@@ -55,6 +55,7 @@ flake8==6.1.0
 # Authentication & Security (Enhanced)
 python-jose[cryptography]==3.3.0
 passlib[bcrypt]==1.7.4
+bcrypt==4.0.1
 
 # Image Processing
 Pillow==10.1.0
